@@ -1,0 +1,26 @@
+body {
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+#pendulumCanvas {
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    margin-top: 20px;
+}
+
+#controls {
+    margin-top: 20px;
+}
+
+#controls label {
+    margin-right: 10px;
+}
+
+#controls input {
+    margin-right: 20px;
+}
