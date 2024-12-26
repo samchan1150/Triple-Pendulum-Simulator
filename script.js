@@ -73,6 +73,8 @@ class PendulumSimulator {
         this.currentDamping = container.querySelector('.currentDamping');
         this.currentMaxPathPoints = container.querySelector('.currentMaxPathPoints');
         
+        this.showPath = true;
+        
         // Initialize event listeners
         this.initEventListeners();
         
