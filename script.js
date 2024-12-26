@@ -2,7 +2,7 @@ const canvas = document.getElementById('pendulumCanvas');
 const ctx = canvas.getContext('2d');
 
 // Scaling factor
-const scale = 50; // 100 pixels per meter
+const scale = 50; // 50 pixels per meter
 
 // Pendulum parameters
 let length1 = 1.5 * scale; // Length of the first pendulum
@@ -13,7 +13,7 @@ let angleAcceleration1 = 0;
 
 let length2 = 1.5 * scale; // Length of the second pendulum
 let mass2 = 20; // Mass of the second bob
-let angle2 = -90 * Math.PI / 180; // Initial angle in radians
+let angle2 = 60 * Math.PI / 180; // Initial angle in radians
 let angleVelocity2 = 0;
 let angleAcceleration2 = 0;
 
@@ -30,9 +30,98 @@ let lastTimestamp = 0;
 
 // Origin point
 const originX = canvas.width / 2;
-const originY = canvas.height / 2;
+const originY = canvas.height / 4; // Adjusted to upper part for better visibility
 
-// Initialize controls (as shown above)
+// Path storage
+const path = {
+    bob1: [],
+    bob2: [],
+    bob3: []
+};
+
+// Maximum number of path points to store (now a let to allow dynamic updates)
+let maxPathPoints = 1000;
+
+// Initialize controls
+const lengthSlider1 = document.getElementById('length1');
+const lengthSlider2 = document.getElementById('length2');
+const lengthSlider3 = document.getElementById('length3');
+const massInput1 = document.getElementById('mass1');
+const massInput2 = document.getElementById('mass2');
+const massInput3 = document.getElementById('mass3');
+const angleSlider1 = document.getElementById('angle1');
+const angleSlider2 = document.getElementById('angle2');
+const angleSlider3 = document.getElementById('angle3');
+const gravityInput = document.getElementById('gravity');
+const dampingInput = document.getElementById('damping');
+const startBtn = document.getElementById('startBtn');
+
+// New path toggle
+const showPathCheckbox = document.getElementById('showPath');
+let showPath = showPathCheckbox.checked;
+
+// New Max Path Points control
+const maxPathPointsInput = document.getElementById('maxPathPoints');
+
+// Event listeners for controls
+lengthSlider1.addEventListener('input', () => {
+    length1 = parseFloat(lengthSlider1.value) * scale;
+});
+lengthSlider2.addEventListener('input', () => {
+    length2 = parseFloat(lengthSlider2.value) * scale;
+});
+lengthSlider3.addEventListener('input', () => {
+    length3 = parseFloat(lengthSlider3.value) * scale;
+});
+massInput1.addEventListener('input', () => {
+    mass1 = parseFloat(massInput1.value);
+});
+massInput2.addEventListener('input', () => {
+    mass2 = parseFloat(massInput2.value);
+});
+massInput3.addEventListener('input', () => {
+    mass3 = parseFloat(massInput3.value);
+});
+angleSlider1.addEventListener('input', () => {
+    angle1 = parseFloat(angleSlider1.value) * Math.PI / 180;
+});
+angleSlider2.addEventListener('input', () => {
+    angle2 = parseFloat(angleSlider2.value) * Math.PI / 180;
+});
+angleSlider3.addEventListener('input', () => {
+    angle3 = parseFloat(angleSlider3.value) * Math.PI / 180;
+});
+gravityInput.addEventListener('input', () => {
+    gravity = parseFloat(gravityInput.value) * scale;
+});
+dampingInput.addEventListener('input', () => {
+    damping = parseFloat(dampingInput.value);
+});
+
+// Event listener for the show path checkbox
+showPathCheckbox.addEventListener('change', () => {
+    showPath = showPathCheckbox.checked;
+    if (!showPath) {
+        // Clear the path when disabled
+        path.bob1 = [];
+        path.bob2 = [];
+        path.bob3 = [];
+    }
+});
+
+// Event listener for the maxPathPoints input
+maxPathPointsInput.addEventListener('input', () => {
+    const newMax = parseInt(maxPathPointsInput.value, 10);
+    if (!isNaN(newMax) && newMax >= 100 && newMax <= 5000) {
+        maxPathPoints = newMax;
+        // Trim existing paths if necessary
+        Object.keys(path).forEach(bob => {
+            if (path[bob].length > maxPathPoints) {
+                path[bob] = path[bob].slice(path[bob].length - maxPathPoints);
+            }
+        });
+    }
+});
 
 // Update physics
 function update(timestamp) {
@@ -83,12 +172,19 @@ function update(timestamp) {
     angle3 += angleVelocity3 * deltaTime;
 }
 
-
-// Draw pendulum with trail effect
+// Draw pendulum with optional path
 function draw() {
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (!showPath) {
+        // Clear the canvas with a solid color when path is disabled
+        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else {
+        // Draw a semi-transparent rectangle to create a fading trail effect
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
+    // Calculate bob positions
     const bob1X = originX + length1 * Math.sin(angle1);
     const bob1Y = originY + length1 * Math.cos(angle1);
 
@@ -97,6 +193,30 @@ function draw() {
 
     const bob3X = bob2X + length3 * Math.sin(angle3);
     const bob3Y = bob2Y + length3 * Math.cos(angle3);
+
+    if (showPath) {
+        // Store the current positions
+        path.bob1.push({ x: bob1X, y: bob1Y });
+        path.bob2.push({ x: bob2X, y: bob2Y });
+        path.bob3.push({ x: bob3X, y: bob3Y });
+
+        // Limit the number of stored points to prevent memory issues
+        if (path.bob1.length > maxPathPoints) {
+            path.bob1.shift();
+            path.bob2.shift();
+            path.bob3.shift();
+        }
+
+        // Draw the paths
+        drawPath(path.bob1, '#007BFF');
+        drawPath(path.bob2, '#FF4136');
+        drawPath(path.bob3, '#2ECC40');
+    } else {
+        // Clear path arrays when path display is disabled
+        path.bob1 = [];
+        path.bob2 = [];
+        path.bob3 = [];
+    }
 
     // Draw first rod and bob
     ctx.beginPath();
@@ -144,21 +264,21 @@ function draw() {
     ctx.stroke();
 }
 
-// Add HTML controls for the third pendulum
-const lengthSlider3 = document.getElementById('length3');
-const massInput3 = document.getElementById('mass3');
-const angleSlider3 = document.getElementById('angle3');
+// Helper function to draw paths
+function drawPath(bobPath, color) {
+    if (bobPath.length < 2) return;
 
-lengthSlider3.addEventListener('input', () => {
-    length3 = parseFloat(lengthSlider3.value) * scale;
-});
-massInput3.addEventListener('input', () => {
-    mass3 = parseFloat(massInput3.value);
-});
-angleSlider3.addEventListener('input', () => {
-    angle3 = parseFloat(angleSlider3.value) * Math.PI / 180;
-});
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.moveTo(bobPath[0].x, bobPath[0].y);
+    for (let i = 1; i < bobPath.length; i++) {
+        ctx.lineTo(bobPath[i].x, bobPath[i].y);
+    }
+    ctx.stroke();
+}
 
+// Animation loop
 function animate(timestamp) {
     if (!paused) {
         update(timestamp);
@@ -172,46 +292,26 @@ draw();
 
 // Start the animation
 paused = false;
+lastTimestamp = performance.now();
 requestAnimationFrame(animate);
-
-// Initialize controls
-const lengthSlider1 = document.getElementById('length1');
-const lengthSlider2 = document.getElementById('length2');
-const massInput1 = document.getElementById('mass1');
-const massInput2 = document.getElementById('mass2');
-const angleSlider1 = document.getElementById('angle1');
-const angleSlider2 = document.getElementById('angle2');
-const startBtn = document.getElementById('startBtn');
-
-// Event listeners for controls
-lengthSlider1.addEventListener('input', () => {
-    length1 = parseFloat(lengthSlider1.value) * scale;
-});
-lengthSlider2.addEventListener('input', () => {
-    length2 = parseFloat(lengthSlider2.value) * scale;
-});
-massInput1.addEventListener('input', () => {
-    mass1 = parseFloat(massInput1.value);
-});
-massInput2.addEventListener('input', () => {
-    mass2 = parseFloat(massInput2.value);
-});
-angleSlider1.addEventListener('input', () => {
-    angle1 = parseFloat(angleSlider1.value) * Math.PI / 180;
-});
-angleSlider2.addEventListener('input', () => {
-    angle2 = parseFloat(angleSlider2.value) * Math.PI / 180;
-});
 
 // Start button resets the simulation and starts it
 startBtn.addEventListener('click', () => {
     // Reset simulation to initial conditions
     angle1 = parseFloat(angleSlider1.value) * Math.PI / 180;
     angle2 = parseFloat(angleSlider2.value) * Math.PI / 180;
+    angle3 = parseFloat(angleSlider3.value) * Math.PI / 180;
     angleVelocity1 = 0;
     angleVelocity2 = 0;
+    angleVelocity3 = 0;
     angleAcceleration1 = 0;
     angleAcceleration2 = 0;
+    angleAcceleration3 = 0;
+
+    // Reset path arrays
+    path.bob1 = [];
+    path.bob2 = [];
+    path.bob3 = [];
 
     // Reset timestamp
     lastTimestamp = performance.now();
@@ -222,5 +322,3 @@ startBtn.addEventListener('click', () => {
         requestAnimationFrame(animate);
     }
 });
-
-
