@@ -17,6 +17,7 @@ body {
     display: inline-block;
     text-align: left;
     margin-top: 20px;
+    vertical-align: top; /* Align controls and configuration side by side */
 }
 
 label {
@@ -37,7 +38,7 @@ input[type="checkbox"] {
 }
 
 button {
-    margin: 5px;
+    margin: 5px 0;
     padding: 10px 20px;
     background-color: #007BFF;
     color: #fff;
@@ -51,7 +52,8 @@ button:hover {
 }
 
 
-#startBtn {
+#startBtn,
+#resetBtn {
     width: 100px; /* Fixed width */
     height: 40px; /* Fixed height */
     background-color: #007BFF;
@@ -62,6 +64,35 @@ button:hover {
     font-size: 16px;
 }
 
-#startBtn:hover {
+#startBtn:hover,
+#resetBtn:hover {
     background-color: #0056b3;
+}
+
+/* Current Configuration Styles */
+#currentConfig {
+    display: inline-block;
+    text-align: left;
+    margin-left: 40px; /* Space between controls and configuration */
+    max-width: 300px;
+    vertical-align: top;
+}
+
+#currentConfig h2 {
+    margin-bottom: 10px;
+}
+
+.config-group {
+    background-color: #e9ecef;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.config-group h3 {
+    margin-top: 0;
+}
+
+.config-group p {
+    margin: 5px 0;
 }

@@ -25,7 +25,7 @@ let angleAcceleration3 = 0;
 
 let gravity = 9.81 * scale;
 let damping = 0.02;
-let paused = true;
+let paused = true; // Initially paused
 let lastTimestamp = 0;
 
 // Origin point
@@ -55,6 +55,7 @@ const angleSlider3 = document.getElementById('angle3');
 const gravityInput = document.getElementById('gravity');
 const dampingInput = document.getElementById('damping');
 const startBtn = document.getElementById('startBtn');
+const resetBtn = document.getElementById('resetBtn');
 
 // New path toggle
 const showPathCheckbox = document.getElementById('showPath');
@@ -63,39 +64,89 @@ let showPath = showPathCheckbox.checked;
 // New Max Path Points control
 const maxPathPointsInput = document.getElementById('maxPathPoints');
 
+// Current Configuration Display Elements
+const currentLength1 = document.getElementById('currentLength1');
+const currentMass1 = document.getElementById('currentMass1');
+const currentAngle1 = document.getElementById('currentAngle1');
+
+const currentLength2 = document.getElementById('currentLength2');
+const currentMass2 = document.getElementById('currentMass2');
+const currentAngle2 = document.getElementById('currentAngle2');
+
+const currentLength3 = document.getElementById('currentLength3');
+const currentMass3 = document.getElementById('currentMass3');
+const currentAngle3 = document.getElementById('currentAngle3');
+
+const currentGravity = document.getElementById('currentGravity');
+const currentDamping = document.getElementById('currentDamping');
+const currentMaxPathPoints = document.getElementById('currentMaxPathPoints');
+
+// Function to update Current Configuration Display
+function updateCurrentConfigDisplay() {
+    currentLength1.textContent = (length1 / scale).toFixed(2);
+    currentMass1.textContent = mass1;
+    currentAngle1.textContent = (angle1 * 180 / Math.PI).toFixed(2);
+
+    currentLength2.textContent = (length2 / scale).toFixed(2);
+    currentMass2.textContent = mass2;
+    currentAngle2.textContent = (angle2 * 180 / Math.PI).toFixed(2);
+
+    currentLength3.textContent = (length3 / scale).toFixed(2);
+    currentMass3.textContent = mass3;
+    currentAngle3.textContent = (angle3 * 180 / Math.PI).toFixed(2);
+
+    currentGravity.textContent = (gravity / scale).toFixed(2);
+    currentDamping.textContent = damping.toFixed(2);
+    currentMaxPathPoints.textContent = maxPathPoints;
+}
+
+// Initialize the display with default values
+updateCurrentConfigDisplay();
+
 // Event listeners for controls
 lengthSlider1.addEventListener('input', () => {
     length1 = parseFloat(lengthSlider1.value) * scale;
+    updateCurrentConfigDisplay();
 });
 lengthSlider2.addEventListener('input', () => {
     length2 = parseFloat(lengthSlider2.value) * scale;
+    updateCurrentConfigDisplay();
 });
 lengthSlider3.addEventListener('input', () => {
     length3 = parseFloat(lengthSlider3.value) * scale;
+    updateCurrentConfigDisplay();
 });
 massInput1.addEventListener('input', () => {
     mass1 = parseFloat(massInput1.value);
+    updateCurrentConfigDisplay();
 });
 massInput2.addEventListener('input', () => {
     mass2 = parseFloat(massInput2.value);
+    updateCurrentConfigDisplay();
 });
 massInput3.addEventListener('input', () => {
     mass3 = parseFloat(massInput3.value);
+    updateCurrentConfigDisplay();
 });
 angleSlider1.addEventListener('input', () => {
     angle1 = parseFloat(angleSlider1.value) * Math.PI / 180;
+    updateCurrentConfigDisplay();
 });
 angleSlider2.addEventListener('input', () => {
     angle2 = parseFloat(angleSlider2.value) * Math.PI / 180;
+    updateCurrentConfigDisplay();
 });
 angleSlider3.addEventListener('input', () => {
     angle3 = parseFloat(angleSlider3.value) * Math.PI / 180;
+    updateCurrentConfigDisplay();
 });
 gravityInput.addEventListener('input', () => {
     gravity = parseFloat(gravityInput.value) * scale;
+    updateCurrentConfigDisplay();
 });
 dampingInput.addEventListener('input', () => {
     damping = parseFloat(dampingInput.value);
+    updateCurrentConfigDisplay();
 });
 
 // Event listener for the show path checkbox
@@ -106,6 +157,7 @@ showPathCheckbox.addEventListener('change', () => {
         path.bob1 = [];
         path.bob2 = [];
         path.bob3 = [];
+        drawPendulum(); // Redraw to clear paths
     }
 });
 
@@ -114,6 +166,7 @@ maxPathPointsInput.addEventListener('input', () => {
     const newMax = parseInt(maxPathPointsInput.value, 10);
     if (!isNaN(newMax) && newMax >= 100 && newMax <= 5000) {
         maxPathPoints = newMax;
+        currentMaxPathPoints.textContent = maxPathPoints;
         // Trim existing paths if necessary
         Object.keys(path).forEach(bob => {
             if (path[bob].length > maxPathPoints) {
@@ -123,8 +176,8 @@ maxPathPointsInput.addEventListener('input', () => {
     }
 });
 
-// Update physics
-function update(timestamp) {
+// Function to update physics
+function updatePhysics(timestamp) {
     const deltaTime = (timestamp - lastTimestamp) / 1000;
     lastTimestamp = timestamp;
 
@@ -141,7 +194,7 @@ function update(timestamp) {
     const cos12 = Math.cos(angle1 - angle2);
     const cos23 = Math.cos(angle2 - angle3);
 
-    // Complex equations for triple pendulum motion
+    // Equations for triple pendulum motion
     const denom = 2 * mass1 + mass2 + mass3;
     
     angleAcceleration1 = (-gravity * (denom) * sin1 - mass2 * gravity * Math.sin(angle1 - 2 * angle2) 
@@ -172,8 +225,8 @@ function update(timestamp) {
     angle3 += angleVelocity3 * deltaTime;
 }
 
-// Draw pendulum with optional path
-function draw() {
+// Function to draw pendulum with optional path
+function drawPendulum() {
     if (!showPath) {
         // Clear the canvas with a solid color when path is disabled
         ctx.fillStyle = 'rgba(255, 255, 255, 1)';
@@ -281,26 +334,35 @@ function drawPath(bobPath, color) {
 // Animation loop
 function animate(timestamp) {
     if (!paused) {
-        update(timestamp);
-        draw();
+        updatePhysics(timestamp);
+        drawPendulum();
         requestAnimationFrame(animate);
     }
 }
 
-// Initial draw
-draw();
+// Initial draw (Clears the canvas)
+drawPendulum();
 
-// Start the animation
-paused = false;
-lastTimestamp = performance.now();
-requestAnimationFrame(animate);
+// Function to Start the Simulation
+function startSimulation() {
+    if (paused) {
+        paused = false;
+        lastTimestamp = performance.now();
+        requestAnimationFrame(animate);
+    }
+}
 
-// Start button resets the simulation and starts it
-startBtn.addEventListener('click', () => {
-    // Reset simulation to initial conditions
+// Function to Reset the Simulation
+function resetSimulation() {
+    // Stop the simulation
+    paused = true;
+
+    // Reset angles to current slider values
     angle1 = parseFloat(angleSlider1.value) * Math.PI / 180;
     angle2 = parseFloat(angleSlider2.value) * Math.PI / 180;
     angle3 = parseFloat(angleSlider3.value) * Math.PI / 180;
+
+    // Reset velocities and accelerations
     angleVelocity1 = 0;
     angleVelocity2 = 0;
     angleVelocity3 = 0;
@@ -308,17 +370,21 @@ startBtn.addEventListener('click', () => {
     angleAcceleration2 = 0;
     angleAcceleration3 = 0;
 
-    // Reset path arrays
+    // Clear path arrays
     path.bob1 = [];
     path.bob2 = [];
     path.bob3 = [];
 
-    // Reset timestamp
-    lastTimestamp = performance.now();
+    // Clear the canvas
+    drawPendulum();
 
-    // Start the simulation if it was paused
-    if (paused) {
-        paused = false;
-        requestAnimationFrame(animate);
-    }
-});
+    // Update the current configuration display
+    updateCurrentConfigDisplay();
+}
+
+// Event listeners for Start and Reset buttons
+startBtn.addEventListener('click', startSimulation);
+resetBtn.addEventListener('click', resetSimulation);
+
+// Note: The simulation does not start automatically on page load.
+// Users must press the "Start" button to begin.
