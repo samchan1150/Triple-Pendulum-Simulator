@@ -17,6 +17,12 @@ let angle2 = -90 * Math.PI / 180; // Initial angle in radians
 let angleVelocity2 = 0;
 let angleAcceleration2 = 0;
 
+let length3 = 1.5 * scale;
+let mass3 = 20;
+let angle3 = -90 * Math.PI / 180;
+let angleVelocity3 = 0;
+let angleAcceleration3 = 0;
+
 let gravity = 9.81 * scale;
 let damping = 0.02;
 let paused = true;
@@ -30,53 +36,69 @@ const originY = canvas.height / 2;
 
 // Update physics
 function update(timestamp) {
-    // Calculate the time difference
-    const deltaTime = (timestamp - lastTimestamp) / 1000; // Convert ms to seconds
+    const deltaTime = (timestamp - lastTimestamp) / 1000;
     lastTimestamp = timestamp;
 
-    if (isNaN(deltaTime) || deltaTime <= 0) {
-        return;
-    }
+    if (isNaN(deltaTime) || deltaTime <= 0) return;
 
-    // Equations of motion
     const sin1 = Math.sin(angle1);
     const sin2 = Math.sin(angle2);
+    const sin3 = Math.sin(angle3);
     const cos1 = Math.cos(angle1);
     const cos2 = Math.cos(angle2);
+    const cos3 = Math.cos(angle3);
     const sin12 = Math.sin(angle1 - angle2);
+    const sin23 = Math.sin(angle2 - angle3);
     const cos12 = Math.cos(angle1 - angle2);
+    const cos23 = Math.cos(angle2 - angle3);
 
-    const denom1 = (2 * mass1 + mass2 - mass2 * Math.cos(2 * angle1 - 2 * angle2));
-    const denom2 = denom1;
+    // Complex equations for triple pendulum motion
+    const denom = 2 * mass1 + mass2 + mass3;
+    
+    angleAcceleration1 = (-gravity * (denom) * sin1 - mass2 * gravity * Math.sin(angle1 - 2 * angle2) 
+        - mass3 * gravity * Math.sin(angle1 - 2 * angle3) - 2 * sin12 * mass2 
+        * (angleVelocity2 * angleVelocity2 * length2 + angleVelocity1 * angleVelocity1 * length1 * cos12)) 
+        / (length1 * denom);
 
-    angleAcceleration1 = (-gravity * (2 * mass1 + mass2) * sin1 - mass2 * gravity * Math.sin(angle1 - 2 * angle2) - 2 * sin12 * mass2 * (angleVelocity2 * angleVelocity2 * length2 + angleVelocity1 * angleVelocity1 * length1 * cos12)) / (length1 * denom1);
-    angleAcceleration2 = (2 * sin12 * (angleVelocity1 * angleVelocity1 * length1 * (mass1 + mass2) + gravity * (mass1 + mass2) * cos1 + angleVelocity2 * angleVelocity2 * length2 * mass2 * cos12)) / (length2 * denom2);
+    angleAcceleration2 = (2 * sin12 * (angleVelocity1 * angleVelocity1 * length1 * (mass1 + mass2) 
+        + gravity * (mass1 + mass2) * cos1 + angleVelocity2 * angleVelocity2 * length2 * mass2 * cos12)) 
+        / (length2 * denom);
+
+    angleAcceleration3 = (2 * sin23 * (angleVelocity2 * angleVelocity2 * length2 * (mass2 + mass3) 
+        + gravity * (mass2 + mass3) * cos2 + angleVelocity3 * angleVelocity3 * length3 * mass3 * cos23)) 
+        / (length3 * denom);
 
     // Apply damping
     angleAcceleration1 -= damping * angleVelocity1;
     angleAcceleration2 -= damping * angleVelocity2;
+    angleAcceleration3 -= damping * angleVelocity3;
 
     // Update velocities and angles
     angleVelocity1 += angleAcceleration1 * deltaTime;
     angleVelocity2 += angleAcceleration2 * deltaTime;
+    angleVelocity3 += angleAcceleration3 * deltaTime;
+    
     angle1 += angleVelocity1 * deltaTime;
     angle2 += angleVelocity2 * deltaTime;
+    angle3 += angleVelocity3 * deltaTime;
 }
+
 
 // Draw pendulum with trail effect
 function draw() {
-    // Semi-transparent background for trail effect
     ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Calculate positions
     const bob1X = originX + length1 * Math.sin(angle1);
     const bob1Y = originY + length1 * Math.cos(angle1);
 
     const bob2X = bob1X + length2 * Math.sin(angle2);
     const bob2Y = bob1Y + length2 * Math.cos(angle2);
 
-    // Draw first rod
+    const bob3X = bob2X + length3 * Math.sin(angle3);
+    const bob3Y = bob2Y + length3 * Math.cos(angle3);
+
+    // Draw first rod and bob
     ctx.beginPath();
     ctx.moveTo(originX, originY);
     ctx.lineTo(bob1X, bob1Y);
@@ -84,7 +106,6 @@ function draw() {
     ctx.lineWidth = 3;
     ctx.stroke();
 
-    // Draw first bob
     ctx.beginPath();
     ctx.arc(bob1X, bob1Y, mass1 / 3, 0, Math.PI * 2);
     ctx.fillStyle = '#007BFF';
@@ -92,7 +113,7 @@ function draw() {
     ctx.strokeStyle = '#333';
     ctx.stroke();
 
-    // Draw second rod
+    // Draw second rod and bob
     ctx.beginPath();
     ctx.moveTo(bob1X, bob1Y);
     ctx.lineTo(bob2X, bob2Y);
@@ -100,14 +121,43 @@ function draw() {
     ctx.lineWidth = 3;
     ctx.stroke();
 
-    // Draw second bob
     ctx.beginPath();
     ctx.arc(bob2X, bob2Y, mass2 / 3, 0, Math.PI * 2);
     ctx.fillStyle = '#FF4136';
     ctx.fill();
     ctx.strokeStyle = '#333';
     ctx.stroke();
+
+    // Draw third rod and bob
+    ctx.beginPath();
+    ctx.moveTo(bob2X, bob2Y);
+    ctx.lineTo(bob3X, bob3Y);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(bob3X, bob3Y, mass3 / 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#2ECC40';
+    ctx.fill();
+    ctx.strokeStyle = '#333';
+    ctx.stroke();
 }
+
+// Add HTML controls for the third pendulum
+const lengthSlider3 = document.getElementById('length3');
+const massInput3 = document.getElementById('mass3');
+const angleSlider3 = document.getElementById('angle3');
+
+lengthSlider3.addEventListener('input', () => {
+    length3 = parseFloat(lengthSlider3.value) * scale;
+});
+massInput3.addEventListener('input', () => {
+    mass3 = parseFloat(massInput3.value);
+});
+angleSlider3.addEventListener('input', () => {
+    angle3 = parseFloat(angleSlider3.value) * Math.PI / 180;
+});
 
 function animate(timestamp) {
     if (!paused) {

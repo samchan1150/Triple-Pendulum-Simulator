@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Pendulum Simulator</h1>
-    <canvas id="pendulumCanvas" width="600" height="500"></canvas>
+    <canvas id="pendulumCanvas" width="800" height="750"></canvas>
     
     <div id="controls">
         <!-- Lengths -->
@@ -17,6 +17,10 @@
         <label for="length2">Length 2 (m):</label>
         <input type="range" id="length2" min="0.5" max="2.5" value="1.5" step="0.01">
 
+        <label for="length3">Length 3 (m):</label>
+        <input type="range" id="length3" min="0.5" max="2.5" value="1.5" step="0.01">
+
+
         <!-- Masses -->
         <label for="mass1">Mass 1 (kg):</label>
         <input type="number" id="mass1" value="20" step="1">
@@ -24,12 +28,18 @@
         <label for="mass2">Mass 2 (kg):</label>
         <input type="number" id="mass2" value="20" step="1">
 
+        <label for="mass3">Mass 3 (kg):</label>
+        <input type="number" id="mass3" value="20" step="1">
+
         <!-- Angles -->
         <label for="angle1">Angle 1 (°):</label>
         <input type="range" id="angle1" min="-180" max="180" value="90">
 
         <label for="angle2">Angle 2 (°):</label>
         <input type="range" id="angle2" min="-180" max="180" value="60">
+
+        <label for="angle3">Angle 3 (°):</label>
+        <input type="range" id="angle3" min="-180" max="180" value="-90">
 
         <!-- Gravity -->
         <label for="gravity">Gravity (m/s²):</label>
