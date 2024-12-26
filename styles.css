@@ -96,3 +96,29 @@ h1 {
 .config-group p {
     margin: 5px 0;
 }
+
+.global-controls {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.global-controls label {
+    margin-right: 5px;
+}
+.global-controls input {
+    margin-right: 15px;
+}
+.global-controls button {
+    /* Reuse similar styles from .controls button */
+    width: 100px;
+    height: 40px;
+    margin: 0 10px 0 0;
+    padding: 5px 10px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.global-controls button:hover {
+    background-color: #0056b3;
+}

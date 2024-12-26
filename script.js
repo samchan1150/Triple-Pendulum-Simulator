@@ -57,12 +57,6 @@ class PendulumSimulator {
         this.angleSlider3 = container.querySelector('.angle3');
         this.gravityInput = container.querySelector('.gravity');
         this.dampingInput = container.querySelector('.damping');
-        this.showPathCheckbox = container.querySelector('.showPath');
-        this.maxPathPointsInput = container.querySelector('.maxPathPoints');
-        this.startBtn = container.querySelector('.startBtn');
-        this.resetBtn = container.querySelector('.resetBtn');
-        
-        // References to current configuration display
         this.currentLength1 = container.querySelector('.currentLength1');
         this.currentMass1 = container.querySelector('.currentMass1');
         this.currentAngle1 = container.querySelector('.currentAngle1');
@@ -142,47 +136,6 @@ class PendulumSimulator {
         this.dampingInput.addEventListener('input', () => {
             this.damping = parseFloat(this.dampingInput.value);
             this.updateCurrentConfigDisplay();
-        });
-        
-        // Show Path toggle
-        this.showPathCheckbox.addEventListener('change', () => {
-            this.showPath = this.showPathCheckbox.checked;
-            if (!this.showPath) {
-                // Clear the path when disabled
-                this.path.bob1 = [];
-                this.path.bob2 = [];
-                this.path.bob3 = [];
-                this.drawPendulum(); // Redraw to clear paths
-            }
-        });
-        
-        // Max Path Points input
-        this.maxPathPointsInput.addEventListener('input', () => {
-            const newMax = parseInt(this.maxPathPointsInput.value, 10);
-            if (!isNaN(newMax) && newMax >= 100 && newMax <= 5000) {
-                this.maxPathPoints = newMax;
-                this.currentMaxPathPoints.textContent = this.maxPathPoints;
-                // Trim existing paths if necessary
-                Object.keys(this.path).forEach(bob => {
-                    if (this.path[bob].length > this.maxPathPoints) {
-                        this.path[bob] = this.path[bob].slice(this.path[bob].length - this.maxPathPoints);
-                    }
-                });
-            }
-        });
-        
-        // Start button
-        this.startBtn.addEventListener('click', () => {
-            if (this.paused) {
-                this.paused = false;
-                this.lastTimestamp = performance.now();
-                requestAnimationFrame(this.animate.bind(this));
-            }
-        });
-        
-        // Reset button
-        this.resetBtn.addEventListener('click', () => {
-            this.resetSimulation();
         });
     }
     
@@ -405,7 +358,50 @@ class PendulumSimulator {
 // Initialize all pendulum simulators on the page
 document.addEventListener('DOMContentLoaded', () => {
     const simulators = document.querySelectorAll('.pendulum-simulator');
-    simulators.forEach(simulator => {
-        new PendulumSimulator(simulator);
+    const simInstances = [];
+    simulators.forEach(sim => {
+        simInstances.push(new PendulumSimulator(sim));
+    });
+
+    // Global references
+    const showPathCheckbox = document.querySelector('.showPath');
+    const maxPathPointsInput = document.querySelector('.maxPathPoints');
+    const resetBtn = document.querySelector('.resetBtn');
+    const startBtn = document.querySelector('.startBtn');
+
+    // Global event listeners to control all simulators
+    showPathCheckbox.addEventListener('change', () => {
+        simInstances.forEach(sim => {
+            sim.showPath = showPathCheckbox.checked;
+            if (!sim.showPath) {
+                sim.path.bob1 = [];
+                sim.path.bob2 = [];
+                sim.path.bob3 = [];
+                sim.drawPendulum();
+            }
+        });
+    });
+
+    maxPathPointsInput.addEventListener('input', () => {
+        const newMax = parseInt(maxPathPointsInput.value, 10);
+        if (!isNaN(newMax) && newMax >= 100 && newMax <= 5000) {
+            simInstances.forEach(sim => {
+                sim.maxPathPoints = newMax;
+                sim.currentMaxPathPoints.textContent = newMax;
+                Object.keys(sim.path).forEach(bob => {
+                    if (sim.path[bob].length > newMax) {
+                        sim.path[bob] = sim.path[bob].slice(sim.path[bob].length - newMax);
+                    }
+                });
+            });
+        }
+    });
+
+    startBtn.addEventListener('click', () => {
+        simInstances.forEach(sim => sim.startSimulation());
+    });
+
+    resetBtn.addEventListener('click', () => {
+        simInstances.forEach(sim => sim.resetSimulation());
     });
 });

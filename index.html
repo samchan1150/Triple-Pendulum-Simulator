@@ -6,6 +6,18 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- New global controls -->
+    <div class="global-controls">
+        <label for="showPath">Show Path:</label>
+        <input type="checkbox" class="showPath" checked>
+        
+        <label for="maxPathPoints">Max Path Points:</label>
+        <input type="number" class="maxPathPoints" value="1000" min="100" max="5000" step="100">
+        
+        <button class="resetBtn">Reset</button>
+        <button class="startBtn">Start</button>
+    </div>
+
     <h1>Pendulum Simulator Comparison</h1>
     <div class="simulators-container">
         <!-- Simulator 1 -->
@@ -47,23 +59,11 @@
     
                 <!-- Gravity -->
                 <label for="gravity-s1">Gravity (m/s²):</label>
-                <input type="number" class="gravity" value="9.81" step="0.1">
+                <input type="number" class="gravity" value="9.81" step="0.01">
                 
                 <!-- Damping -->
                 <label for="damping-s1">Damping:</label>
                 <input type="number" class="damping" value="0.02" step="0.01">
-    
-                <!-- Show Path Toggle -->
-                <label for="showPath-s1">Show Path:</label>
-                <input type="checkbox" class="showPath" checked>
-    
-                <!-- Max Path Points -->
-                <label for="maxPathPoints-s1">Max Path Points:</label>
-                <input type="number" class="maxPathPoints" value="1000" min="100" max="5000" step="100">
-    
-                <!-- Reset and Start Buttons -->
-                <button class="resetBtn">Reset</button>
-                <button class="startBtn">Start</button>
             </div>
     
             <!-- Current Configuration Display -->
@@ -104,13 +104,13 @@
             <div class="controls">
                 <!-- Lengths -->
                 <label for="length1-s2">Length 1 (m):</label>
-                <input type="range" class="length1" min="0.5" max="2.5" value="1.6" step="0.01">
+                <input type="range" class="length1" min="0.5" max="2.5" value="1.5" step="0.01">
     
                 <label for="length2-s2">Length 2 (m):</label>
-                <input type="range" class="length2" min="0.5" max="2.5" value="1.4" step="0.01">
+                <input type="range" class="length2" min="0.5" max="2.5" value="1.5" step="0.01">
     
                 <label for="length3-s2">Length 3 (m):</label>
-                <input type="range" class="length3" min="0.5" max="2.5" value="1.6" step="0.01">
+                <input type="range" class="length3" min="0.5" max="2.5" value="1.5" step="0.01">
     
     
                 <!-- Masses -->
@@ -118,40 +118,28 @@
                 <input type="number" class="mass1" value="20" step="1">
     
                 <label for="mass2-s2">Mass 2 (kg):</label>
-                <input type="number" class="mass2" value="19" step="1">
+                <input type="number" class="mass2" value="20" step="1">
     
                 <label for="mass3-s2">Mass 3 (kg):</label>
-                <input type="number" class="mass3" value="21" step="1">
+                <input type="number" class="mass3" value="20" step="1">
     
                 <!-- Angles -->
                 <label for="angle1-s2">Angle 1 (°):</label>
-                <input type="range" class="angle1" min="-180" max="180" value="91">
+                <input type="range" class="angle1" min="-180" max="180" value="90">
     
                 <label for="angle2-s2">Angle 2 (°):</label>
-                <input type="range" class="angle2" min="-180" max="180" value="59">
+                <input type="range" class="angle2" min="-180" max="180" value="60">
     
                 <label for="angle3-s2">Angle 3 (°):</label>
-                <input type="range" class="angle3" min="-180" max="180" value="-89">
+                <input type="range" class="angle3" min="-180" max="180" value="-90">
     
                 <!-- Gravity -->
                 <label for="gravity-s2">Gravity (m/s²):</label>
-                <input type="number" class="gravity" value="9.81" step="0.1">
+                <input type="number" class="gravity" value="9.81" step="0.01">
                 
                 <!-- Damping -->
                 <label for="damping-s2">Damping:</label>
                 <input type="number" class="damping" value="0.02" step="0.01">
-    
-                <!-- Show Path Toggle -->
-                <label for="showPath-s2">Show Path:</label>
-                <input type="checkbox" class="showPath" checked>
-    
-                <!-- Max Path Points -->
-                <label for="maxPathPoints-s2">Max Path Points:</label>
-                <input type="number" class="maxPathPoints" value="1000" min="100" max="5000" step="100">
-    
-                <!-- Reset and Start Buttons -->
-                <button class="resetBtn">Reset</button>
-                <button class="startBtn">Start</button>
             </div>
     
             <!-- Current Configuration Display -->
