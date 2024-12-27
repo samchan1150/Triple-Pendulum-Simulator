@@ -267,6 +267,8 @@ class PendulumSimulator {
         this.ctx.strokeStyle = '#333';
         this.ctx.stroke();
     
+        this.drawVelocityArrow(bob1X, bob1Y, this.length1, this.angle1, this.angleVelocity1, 'darkblue');
+    
         // Draw second rod and bob
         this.ctx.beginPath();
         this.ctx.moveTo(bob1X, bob1Y);
@@ -282,6 +284,8 @@ class PendulumSimulator {
         this.ctx.strokeStyle = '#333';
         this.ctx.stroke();
     
+        this.drawVelocityArrow(bob2X, bob2Y, this.length2, this.angle2, this.angleVelocity2, 'darkred');
+    
         // Draw third rod and bob
         this.ctx.beginPath();
         this.ctx.moveTo(bob2X, bob2Y);
@@ -296,6 +300,8 @@ class PendulumSimulator {
         this.ctx.fill();
         this.ctx.strokeStyle = '#333';
         this.ctx.stroke();
+    
+        this.drawVelocityArrow(bob3X, bob3Y, this.length3, this.angle3, this.angleVelocity3, 'darkgreen');
     }
     
     drawPath(bobPath, color) {
@@ -309,6 +315,37 @@ class PendulumSimulator {
             this.ctx.lineTo(bobPath[i].x, bobPath[i].y);
         }
         this.ctx.stroke();
+    }
+    
+    drawVelocityArrow(bx, by, rodLength, angle, angleVel, color) {
+        const arrowScale = 0.2;
+        const velocity = rodLength * angleVel;
+        const arrowAngle = angle + Math.PI / 2;
+        const endX = bx + arrowScale * velocity * Math.sin(arrowAngle);
+        const endY = by + arrowScale * velocity * Math.cos(arrowAngle);
+    
+        this.ctx.beginPath();
+        this.ctx.moveTo(bx, by);
+        this.ctx.lineTo(endX, endY);
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+    
+        // Arrowhead
+        const headSize = 10 * Math.sign(velocity);
+        this.ctx.beginPath();
+        this.ctx.moveTo(endX, endY);
+        this.ctx.lineTo(
+            endX - headSize * Math.sin(arrowAngle - 0.3),
+            endY - headSize * Math.cos(arrowAngle - 0.3)
+        );
+        this.ctx.lineTo(
+            endX - headSize * Math.sin(arrowAngle + 0.3),
+            endY - headSize * Math.cos(arrowAngle + 0.3)
+        );
+        this.ctx.closePath();
+        this.ctx.fillStyle = color;
+        this.ctx.fill();
     }
     
     animate(timestamp) {
